@@ -2,7 +2,7 @@
 
 <details>
 <summary>
-A social app, handle API for add/remove post from favorites
+A social app, handle API for add/remove post from favorites.
 </summary>
 
 **What I did**:
@@ -78,6 +78,15 @@ While working on an old project, I encountered errors after cloning the app and 
 **Error**: Another error occurred in a different migration, and I wasn't sure why.
 **Solution**: It was due to an old package updating its migration. I deleted the file, reran the package terminal to generate the new migration file, and added a check at the top to prevent problems with existing tables on the server.
 
+```php
+public function up(): void
+{
+    if (!Schema::hasTable('tableName')) {
+      //...
+    }
+}
+```
+
 - _Credits: Saif_
 
 </details>
@@ -92,6 +101,10 @@ Working on a live app, we needed to update the 'name' column to be of JSON type 
 **Error**: Initially attempted to change the type directly, but encountered an error due to existing string values in the column.
 
 **Solution**: Created a new column called new_name, looped through each name and added it to new_name column in JSON format, then deleted named column and renamed new_name to be name, I also learned how to add new_name column directly after name column.
+
+```php
+$table->json('new_name')->after('name');
+```
 
 - _Credits: Saif_
 
