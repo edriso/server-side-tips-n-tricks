@@ -72,7 +72,7 @@ While working on an old project, I encountered errors after cloning the app and 
 
 **Error 1.0**: A late migration had a foreign key referencing a prior migration, causing an error.
 **Solution 1.0**: I renamed the file to ensure it comes before the referenced migration.
-**Error 1.1**: I added a check to ensure the table doesn't exist before running the logic.
+**Error 1.1**: It led to a production issue because a new migration file was created, attempting to create a table that already existed in the database, causing schema conflicts.
 **Solution 1.1**: I added a check to ensure the table doesn't exist before running the logic.
 
 **Error**: Another error occurred in a different migration, and I wasn't sure why.
