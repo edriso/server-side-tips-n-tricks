@@ -2,7 +2,7 @@
 
 <details>
 <summary>
-A social app, handle API for add/remove post from favorites.
+1- A social app, handle API for add/remove post from favorites.
 </summary>
 
 **What I did**:
@@ -22,7 +22,7 @@ A social app, handle API for add/remove post from favorites.
 
 <details>
 <summary>
-In our app, we aim to show various types of posts like all user posts, a single post, most viewed posts, and posts similar to a specific one.
+2- In our app, we aim to show various types of posts like all user posts, a single post, most viewed posts, and posts similar to a specific one.
 </summary>
 
 **What I did**: Made individual endpoints for each type of post.
@@ -37,7 +37,7 @@ In our app, we aim to show various types of posts like all user posts, a single 
 
 <details>
 <summary>
-Imagine an app where clients can subscribe to different bundles. We want to keep track of how much of each bundle a client has left and how many times they've used it.
+3- Imagine an app where clients can subscribe to different bundles. We want to keep track of how much of each bundle a client has left and how many times they've used it.
 </summary>
 
 **What I did**: Added 'remaining' and 'consumed/used' columns to the pivot table connecting bundles and clients, and if we need the total amount, we add them up.
@@ -52,7 +52,7 @@ Imagine an app where clients can subscribe to different bundles. We want to keep
 
 <details>
 <summary>
-Continuing from the previous Subscribe to a bundle (without payment).
+4- Continuing from the previous Subscribe to a bundle (without payment).
 </summary>
 
 **What I did**: I added a method named `subscribeToBundle` in the Bundle model. It accepts a bundle's ID as a parameter and handles different cases: if the bundle doesn't exist, it returns an error message response; if the client already has the bundle, it returns a response indicating that it was extended; and if there's no existing relation, it returns a response indicating successful subscription.
@@ -67,7 +67,7 @@ Continuing from the previous Subscribe to a bundle (without payment).
 
 <details>
 <summary>
-While working on an old project, I encountered errors after cloning the app and running migrations.
+5- While working on an old project, I encountered errors after cloning the app and running migrations.
 </summary>
 
 **Error 1.0**: A late migration had a foreign key referencing a prior migration, causing an error.
@@ -95,15 +95,107 @@ public function up(): void
 
 <details>
 <summary>
-Working on a live app, we needed to update the 'name' column to be of JSON type instead of VARCHAR/String.
+6- Working on a live app, we needed to update the 'name' column to be of JSON type instead of VARCHAR/String.
 </summary>
 
-**Error**: Initially attempted to change the type directly, but encountered an error due to existing string values in the column.
-
-**Solution**: Created a new column called new_name, looped through each name and added it to new_name column in JSON format, then deleted named column and renamed new_name to be name, I also learned how to add new_name column directly after name column.
+**What I did**: Initially attempted to change the type directly, but encountered an error due to existing string values in the column.
+So, I found a solution to create a new column called new_name, looped through each name and added it to new_name column in JSON format, then deleted named column and renamed new_name to be name, I also learned how to add new_name column directly after name column.
 
 ```php
-$table->json('new_name')->after('name');
+Schema::table('users', function (Blueprint $table) {
+    Schema::table('users', function (Blueprint $table) {
+        $table->json('new_name')->after('name')->nullable();
+    });
+
+    // During code review, Saif opted for raw SQL queries over ORM
+    // for more efficient execution.
+    DB::table('users')->update(
+      ['new_name' => DB::raw('JSON_OBJECT("en", name, "ar", name)')]
+    );
+
+    Schema::table('users', function (Blueprint $table) {
+        $table->dropColumn('name');
+        $table->renameColumn('new_name', 'name');
+    });
+});
+```
+
+</details>
+
+---
+
+<details>
+<summary>
+7- Sometimes your code needs space for better readability.
+</summary>
+
+**Before**:
+
+```php
+Schema::create('users', function (Blueprint $table) {
+  $table->id();
+  $table->string('name');
+  $table->string('email')->unique();
+  $table->timestamp('email_verified_at')->nullable();
+  $table->string('password');
+  $table->string('phone_e164')->nullable()->unique();
+  $table->timestamp('phone_verified_at')->nullable();
+  $table->foreignId('country_id')->nullable()->constrained()->nullOnDelete();
+  $table->foreignId('city_id')->nullable()->constrained()->nullOnDelete();
+  $table->foreignId('area_id')->nullable()->constrained()->nullOnDelete();
+  $table->rememberToken();
+  $table->timestamps();
+});
+
+protected $fillable = [
+  'name',
+  'email',
+  'email_verified_at',
+  'password',
+  'phone_e164',
+  'phone_verified_at',
+  'country_id',
+  'city_id',
+  'area_id',
+];
+```
+
+**After**:
+
+```php
+Schema::create('users', function (Blueprint $table) {
+  $table->id();
+  $table->string('name');
+  $table->string('email')->unique();
+  $table->timestamp('email_verified_at')->nullable();
+
+  $table->string('password');
+
+  $table->string('phone_e164')->nullable()->unique();
+  $table->timestamp('phone_verified_at')->nullable();
+
+  $table->foreignId('country_id')->nullable()->constrained()->nullOnDelete();
+  $table->foreignId('city_id')->nullable()->constrained()->nullOnDelete();
+  $table->foreignId('area_id')->nullable()->constrained()->nullOnDelete();
+
+  $table->rememberToken();
+  $table->timestamps();
+});
+
+protected $fillable = [
+  'name',
+  'email',
+  'email_verified_at',
+
+  'password',
+
+  'phone_e164',
+  'phone_verified_at',
+
+  'country_id',
+  'city_id',
+  'area_id',
+];
 ```
 
 - _Credits: Saif_
