@@ -14,7 +14,7 @@
 
 - Instead of returning error messages when the post isn't found, it's better to simply return without any message, especially to account for scenarios where users may click multiple times.
 - For a more simpler and minimal API, consider combining these operations into a single endpoint for toggling between adding and removing posts from favorites.
-- _Credits: Saif_
+  \_ _Credits: Saif_
 
 </details>
 
@@ -29,7 +29,7 @@
 
 **Code Review**: It's more efficient to create just a couple of endpoints—one for fetching all posts and another for fetching a single post. Then, we can use filters to adjust what we get back based on what the user needs. This not only simplifies the API but also gives us more freedom to adapt to future changes easily.
 
-- _Credits: Saif_
+\_ _Credits: Saif_
 
 </details>
 
@@ -44,7 +44,7 @@
 
 **Code review:** It might be clearer to use a 'total' column instead of 'used'. Here's why: With the first approach, when a client uses a bundle, we increase the 'remaining' and decrease the 'used'. However, with the other approach, when a client uses a bundle, we only adjust the 'remaining', and when they subscribe to a bundle, we increase the 'total'. This second approach offers less functionality. Then, if we need to find out how many times a bundle has been used, we can calculate it by subtracting the 'remaining' from the 'total'.
 
-- _Credits: Saif_
+\_ _Credits: Saif_
 
 </details>
 
@@ -59,7 +59,7 @@
 
 **Code Review**: It's not recommended to handle responses directly from the model; that's the controller's job. Additionally, it's crucial to keep in mind that this method might be used in various contexts like web or API, where the response format could differ. Hence, it's better to handle responses in the controller to maintain flexibility across different implementations.
 
-- _Credits: Saif_
+\_ _Credits: Saif_
 
 </details>
 
@@ -87,7 +87,7 @@ public function up(): void
 }
 ```
 
-- _Credits: Saif_
+\_ _Credits: Saif_
 
 </details>
 
@@ -198,6 +198,32 @@ protected $fillable = [
 ];
 ```
 
-- _Credits: Saif_
+\_ _Credits: Saif_
 
 </details>
+
+---
+
+<details>
+<summary>
+8- Working on an app where users can make posts, and posts expire after a day of admin approval, and feeds show active posts.
+</summary>
+
+**What I did**:
+
+- Added a `status` column to the posts table, handled as an enum where the default is 'pending'.
+- Added an `expires_at` column that updates when the admin approves a post.
+- Added another enum value to `status` called 'expired'.
+- Implemented a cron job that runs every minute to check for 'active' posts that have passed the current time. If found, I changed their status to 'expired'.
+- On the feeds page, I display posts where the `status` is `active'.
+
+**Code Review**:
+
+- It's a good approach, but instead of running a cron job, consider returning posts with 'active' status AND `expires_at` is greater than the current time.
+- But how to handle user manually expiring a post? - We could set `expires_at` to null.
+
+\_ _Credits: Saif_
+
+</details>
+
+---
