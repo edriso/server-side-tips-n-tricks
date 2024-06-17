@@ -220,9 +220,73 @@ protected $fillable = [
 **Code Review**:
 
 - It's a good approach, but instead of running a cron job, consider returning posts with 'active' status AND `expires_at` is greater than the current time.
-- But how to handle user manually expiring a post? - We could set `expires_at` to null.
+- Handling Manual Expiry: And for users manually expire a post, we could set `expires_at` to the current time or to null.
 
 \_ _Credits: Saif_
+
+</details>
+
+---
+
+<details>
+<summary>
+9- Logout Options: Logout from Current Device or All Devices
+</summary>
+
+When implementing the logout functionality, you can provide the client with the option to log out either from the current device or from all devices. This feature enhances security and gives users control over their sessions.
+
+```php
+$request->has('from_all')
+            ? $this->user->tokens()->delete()
+            : $this->user->currentAccessToken()->delete();
+```
+
+```php
+public function logout(Request $request)
+{
+    // Check if the request has the 'from_all' parameter
+    if ($request->has('from_all')) {
+        // Delete all tokens associated with the user, logging them out from all devices
+        $this->user->tokens()->delete();
+    } else {
+        // Delete only the current access token, logging the user out from the current device
+        $this->user->currentAccessToken()->delete();
+    }
+
+    return response()->json(['message' => 'Successfully logged out']);
+}
+```
+
+### Benefits
+
+1. **Enhanced Security**: Allowing users to log out from all devices can help secure their accounts in case they suspect any unauthorized access.
+2. **User Control**: Users can manage their sessions more effectively, choosing to maintain access on trusted devices while logging out from others.
+
+### Note
+
+Ensure proper validation and error handling are in place to handle edge cases, such as when there are no active tokens.
+
+```php
+public function logout(Request $request)
+{
+    if ($request->has('from_all')) {
+        $this->user->tokens()->delete();
+    } else {
+        $token = $this->user->currentAccessToken();
+        if ($token) {
+            $token->delete();
+        } else {
+            return response()->json(['message' => 'No active session found'], 400);
+        }
+    }
+
+    return response()->json(['message' => 'Successfully logged out']);
+}
+```
+
+This enhanced note provides a clear explanation of the functionality, usage examples, and highlights the benefits, making it easy for users and developers to understand and implement.
+
+_Credits: Saif and chatGPT_
 
 </details>
 
